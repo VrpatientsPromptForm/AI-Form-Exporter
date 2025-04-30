@@ -1,0 +1,2201 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Patient Prompt Generator</title>
+    <style>
+        :root {
+            --primary: #4361ee;
+            --secondary: #3a0ca3;
+            --success: #4cc9f0;
+            --warning: #f72585;
+            --light: #f8f9fa;
+            --dark: #212529;
+            --gray: #adb5bd;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background-color: #f8f9fa;
+            color: var(--dark);
+            line-height: 1.6;
+        }
+        
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        header {
+            text-align: center;
+            margin-bottom: 30px;
+            position: relative;
+        }
+        
+        h1 {
+            font-size: 28px;
+            font-weight: 700;
+            color: var(--primary);
+            margin-bottom: 10px;
+        }
+        
+        .card {
+            background-color: white;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+            padding: 25px;
+            margin-bottom: 25px;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+        
+        .card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 6px 16px rgba(0,0,0,0.1);
+        }
+        
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid #eee;
+        }
+        
+        .card-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: var(--secondary);
+        }
+        
+        .toggle-btn {
+            background: none;
+            border: none;
+            color: var(--gray);
+            font-size: 18px;
+            cursor: pointer;
+            transition: color 0.2s;
+        }
+        
+        .toggle-btn:hover {
+            color: var(--primary);
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 6px;
+            font-weight: 500;
+            font-size: 14px;
+            color: var(--dark);
+        }
+        
+        input[type="text"], 
+        textarea, 
+        select {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #e9ecef;
+            border-radius: 8px;
+            font-size: 14px;
+            transition: border-color 0.2s, box-shadow 0.2s;
+        }
+        
+        input[type="text"]:focus, 
+        textarea:focus, 
+        select:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(67, 97, 238, 0.2);
+        }
+        
+        textarea {
+            min-height: 100px;
+            resize: vertical;
+        }
+        
+        .hint {
+            font-size: 12px;
+            color: var(--gray);
+            margin-top: 4px;
+        }
+        
+        .dynamic-items {
+            margin-bottom: 15px;
+        }
+        
+        .dynamic-item {
+            display: flex;
+            margin-bottom: 8px;
+            align-items: center;
+            animation: fadeIn 0.3s;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .item-content {
+            flex-grow: 1;
+            margin-right: 10px;
+        }
+        
+        .item-type {
+            width: 130px;
+            margin-right: 10px;
+        }
+        
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            padding: 8px 16px;
+            border-radius: 8px;
+            font-weight: 500;
+            font-size: 14px;
+            cursor: pointer;
+            transition: all 0.2s;
+            border: none;
+        }
+        
+        .btn-icon {
+            margin-right: 6px;
+        }
+        
+        .btn-primary {
+            background-color: var(--primary);
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            background-color: #3a56d4;
+        }
+        
+        .btn-secondary {
+            background-color: #e9ecef;
+            color: var(--dark);
+        }
+        
+        .btn-secondary:hover {
+            background-color: #dee2e6;
+        }
+        
+        .btn-success {
+            background-color: var(--success);
+            color: white;
+        }
+        
+        .btn-success:hover {
+            background-color: #3db8dc;
+        }
+        
+        .btn-warning {
+            background-color: var(--warning);
+            color: white;
+        }
+        
+        .btn-warning:hover {
+            background-color: #e61c7a;
+        }
+        
+        .btn-sm {
+            padding: 6px 12px;
+            font-size: 12px;
+        }
+        
+        .btn-circle {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            padding: 0;
+        }
+        
+        .btn-remove {
+            background-color: #f1f3f5;
+            color: #495057;
+            width: 28px;
+            height: 28px;
+            padding: 0;
+            border-radius: 50%;
+        }
+        
+        .btn-remove:hover {
+            background-color: #e74c3c;
+            color: white;
+        }
+        
+        .stage {
+            background-color: white;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+            margin-bottom: 25px;
+            overflow: hidden;
+        }
+        
+        .stage-header {
+            background-color: #f8f9fa;
+            padding: 15px 25px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+        
+        .stage-header:hover {
+            background-color: #e9ecef;
+        }
+        
+        .stage-number {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 32px;
+            height: 32px;
+            background-color: var(--primary);
+            color: white;
+            border-radius: 50%;
+            font-weight: 600;
+            margin-right: 15px;
+        }
+        
+        .stage-title {
+            font-size: 16px;
+            font-weight: 600;
+            flex-grow: 1;
+        }
+        
+        .stage-controls {
+            display: flex;
+            gap: 5px;
+        }
+        
+        .stage-content {
+            padding: 25px;
+            border-top: 1px solid #eee;
+        }
+        
+        .collapsed .stage-content {
+            display: none;
+        }
+        
+        .badge {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 500;
+        }
+        
+        .badge-warning {
+            background-color: #fff2cc;
+            color: #e69b00;
+        }
+        
+        .badge-danger {
+            background-color: #ffcccc;
+            color: #cc0000;
+        }
+        
+        .section-title {
+            color: var(--secondary);
+            font-size: 16px;
+            font-weight: 600;
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid #eee;
+        }
+        
+        .subsection-title {
+            color: var(--dark);
+            font-size: 14px;
+            font-weight: 600;
+            margin: 20px 0 10px 0;
+        }
+        
+        .footer {
+            display: flex;
+            justify-content: space-between;
+            padding: 20px 0;
+            margin-top: 30px;
+        }
+        
+        .footer-buttons {
+            display: flex;
+            gap: 10px;
+        }
+        
+        /* Modal styles */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.5);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .modal-content {
+            background-color: white;
+            border-radius: 12px;
+            width: 90%;
+            max-width: 500px;
+            max-height: 90%;
+            overflow: auto;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.2);
+            animation: modalFadeIn 0.3s;
+        }
+        
+        @keyframes modalFadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .modal-header {
+            padding: 20px 25px;
+            border-bottom: 1px solid #eee;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .modal-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: var(--dark);
+        }
+        
+        .modal-close {
+            background: none;
+            border: none;
+            font-size: 22px;
+            cursor: pointer;
+            color: #adb5bd;
+            transition: color 0.2s;
+        }
+        
+        .modal-close:hover {
+            color: var(--dark);
+        }
+        
+        .modal-body {
+            padding: 25px;
+            max-height: 60vh;
+            overflow-y: auto;
+        }
+        
+        .modal-footer {
+            padding: 15px 25px;
+            border-top: 1px solid #eee;
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+        }
+        
+        .template-item {
+            padding: 15px;
+            border-radius: 8px;
+            background-color: #f8f9fa;
+            margin-bottom: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+        
+        .template-item:hover {
+            background-color: #e9ecef;
+        }
+        
+        .template-info {
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .template-title {
+            font-weight: 600;
+            font-size: 14px;
+            color: var(--dark);
+        }
+        
+        .template-date {
+            font-size: 12px;
+            color: var(--gray);
+        }
+        
+        .template-actions {
+            display: flex;
+            gap: 8px;
+        }
+        
+        .fab {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            width: 56px;
+            height: 56px;
+            border-radius: 50%;
+            background-color: var(--primary);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            cursor: pointer;
+            transition: transform 0.2s, background-color 0.2s;
+            z-index: 100;
+        }
+        
+        .fab:hover {
+            transform: translateY(-5px);
+            background-color: #3a56d4;
+        }
+        
+        /* Speech Pattern Buttons */
+        .speech-pattern-buttons {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-bottom: 12px;
+        }
+        
+        .speech-pattern-btn {
+            background-color: #f1f3f5;
+            color: var(--dark);
+            border: none;
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .speech-pattern-btn:hover {
+            background-color: #dee2e6;
+        }
+        
+        .speech-pattern-btn.active {
+            background-color: var(--primary);
+            color: white;
+        }
+        
+        /* Responsive */
+        @media (max-width: 768px) {
+            .container {
+                padding: 15px;
+            }
+            
+            .card {
+                padding: 20px;
+            }
+            
+            .stage-header {
+                padding: 15px;
+            }
+            
+            .stage-content {
+                padding: 15px;
+            }
+            
+            .speech-pattern-buttons {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>AI Patient Template</h1>
+            <p>Create realistic patient scenarios with multi-stage interactions</p>
+        </header>
+        
+        <form id="patientForm">
+            <!-- Setup Card -->
+            <div class="card">
+                <div class="card-header">
+                    <h2 class="card-title">General Setup</h2>
+                    <button type="button" class="toggle-btn">▼</button>
+                </div>
+                
+                <div class="form-group">
+                    <label for="scenarioTitle">Scenario Title</label>
+                    <input type="text" id="scenarioTitle" placeholder="Enter a descriptive title for this scenario">
+                </div>
+                
+                <div class="form-group">
+                    <label for="scenarioFlow">Scenario Overview</label>
+                    <textarea id="scenarioFlow" placeholder="Describe the overall flow of this patient scenario"></textarea>
+                    <p class="hint">Set a baseline reference for the prompt that explains what the AI patient will experience</p>
+                </div>
+                
+                <h3 class="subsection-title">Patient Clarifiers</h3>
+                <p class="hint">Add rules for the AI to follow until told otherwise</p>
+                
+                <div id="clarifiersContainer" class="dynamic-items">
+                    <!-- Dynamic clarifier items will go here -->
+                </div>
+                
+                <button type="button" id="addClarifierBtn" class="btn btn-secondary btn-sm">
+                    <span class="btn-icon">+</span> Add Clarifier
+                </button>
+                
+                <h3 class="subsection-title">Trigger References</h3>
+                <p class="hint">Add specific references for the AI to recognize and transition to the next stage</p>
+                
+                <div id="triggersContainer" class="dynamic-items">
+                    <!-- Dynamic trigger items will go here -->
+                </div>
+                
+                <button type="button" id="addTriggerBtn" class="btn btn-secondary btn-sm">
+                    <span class="btn-icon">+</span> Add Trigger
+                </button>
+            </div>
+            
+            <!-- Patient Information Card -->
+            <div class="card">
+                <div class="card-header">
+                    <h2 class="card-title">Patient Information</h2>
+                    <button type="button" class="toggle-btn">▼</button>
+                </div>
+                
+                <div class="form-group">
+                    <label for="patientName">Name</label>
+                    <input type="text" id="patientName" placeholder="Patient's full name">
+                </div>
+                
+                <div class="form-group">
+                    <label for="patientAge">Age</label>
+                    <input type="text" id="patientAge" placeholder="Patient's age">
+                </div>
+                
+                <div class="form-group">
+                    <label for="patientHistory">Medical History</label>
+                    <textarea id="patientHistory" placeholder="Relevant past medical history"></textarea>
+                </div>
+                
+                <div class="form-group">
+                    <label for="visitReason">Reason for Visit</label>
+                    <textarea id="visitReason" placeholder="Known reason for being seen"></textarea>
+                </div>
+                
+                <h3 class="subsection-title">Patient Knowledge</h3>
+                <p class="hint">Add statements in 2nd person to provide context for the patient role</p>
+                
+                <div id="knowledgeContainer" class="dynamic-items">
+                    <!-- Dynamic knowledge items will go here -->
+                </div>
+                
+                <button type="button" id="addKnowledgeBtn" class="btn btn-secondary btn-sm">
+                    <span class="btn-icon">+</span> Add Knowledge Item
+                </button>
+            </div>
+            
+            <!-- Stages Section -->
+            <h2 class="section-title">Patient Interaction Stages</h2>
+            
+            <div id="stagesContainer">
+                <!-- Stage One -->
+                <div class="stage" id="stage1">
+                    <div class="stage-header" onclick="toggleStage(this.parentNode)">
+                        <div class="stage-number">1</div>
+                        <input type="text" class="stage-title" placeholder="Stage Name (e.g., Initial Assessment)" value="Initial Assessment" onclick="event.stopPropagation()">
+                        <div class="stage-controls">
+                            <button type="button" class="btn btn-sm btn-circle" onclick="event.stopPropagation()">↓</button>
+                            <button type="button" class="btn btn-sm btn-circle" onclick="event.stopPropagation()">↑</button>
+                            <button type="button" class="btn btn-sm btn-circle" onclick="event.stopPropagation()">✕</button>
+                        </div>
+                    </div>
+                    
+                    <div class="stage-content">
+                        <h3 class="subsection-title">Stage-Specific Information</h3>
+                        
+                        <div class="form-group">
+                            <label for="stage1Condition">Current Condition</label>
+                            <textarea id="stage1Condition" placeholder="Describe the patient's condition in this stage"></textarea>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="stage1Concern">Primary Concern</label>
+                            <textarea id="stage1Concern" placeholder="What is the patient's main concern in this stage?"></textarea>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="stage1Symptoms">Current Symptoms</label>
+                            <textarea id="stage1Symptoms" placeholder="List current symptoms the patient is experiencing"></textarea>
+                        </div>
+                        
+                        <h3 class="subsection-title">Behavioral Reference</h3>
+                        
+                        <div class="form-group">
+                            <label for="stage1Emotional">Emotional Baseline</label>
+                            <textarea id="stage1Emotional" placeholder="Describe the patient's emotional state in this stage"></textarea>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="stage1Challenges">Behavioral Challenges</label>
+                            <textarea id="stage1Challenges" placeholder="Any behavioral challenges the provider might face"></textarea>
+                        </div>
+                        
+                        <h3 class="subsection-title">
+                            <span class="badge badge-warning">Behavioral Cues</span>
+                        </h3>
+                        
+                        <div id="stage1CuesContainer" class="dynamic-items">
+                            <!-- Dynamic stage cues will go here -->
+                        </div>
+                        
+                        <button type="button" class="add-stage-cue-btn btn btn-secondary btn-sm" data-stage="1">
+                            <span class="btn-icon">+</span> Add Behavioral Cue
+                        </button>
+                        
+                        <h3 class="subsection-title">
+                            <span class="badge badge-warning">Dialogue Examples</span>
+                        </h3>
+                        
+                        <div id="stage1DialogueContainer" class="dynamic-items">
+                            <!-- Dynamic stage dialogue examples will go here -->
+                        </div>
+                        
+                        <button type="button" class="add-stage-dialogue-btn btn btn-secondary btn-sm" data-stage="1">
+                            <span class="btn-icon">+</span> Add Dialogue Example
+                        </button>
+                        
+                        <h3 class="subsection-title">
+                            <span class="badge badge-danger">Breaking Point</span>
+                        </h3>
+                        
+                        <div class="form-group">
+                            <textarea id="stage1Breaking" placeholder="Describe the trigger dialogue that signals transition to next stage"></textarea>
+                        </div>
+                        
+                        <h3 class="subsection-title">Speech Patterns</h3>
+                        
+                        <div class="speech-pattern-buttons" id="stage1SpeechPatterns">
+                            <button type="button" class="speech-pattern-btn" data-pattern="none" data-stage="1">None</button>
+                            <button type="button" class="speech-pattern-btn" data-pattern="slurring" data-stage="1">Slurring</button>
+                            <button type="button" class="speech-pattern-btn" data-pattern="stuttering" data-stage="1">Stuttering</button>
+                            <button type="button" class="speech-pattern-btn" data-pattern="southern" data-stage="1">Southern Dialect</button>
+                            <button type="button" class="speech-pattern-btn" data-pattern="british" data-stage="1">British Dialect</button>
+                            <button type="button" class="speech-pattern-btn" data-pattern="elderly" data-stage="1">Elderly Speech</button>
+                            <button type="button" class="speech-pattern-btn" data-pattern="child" data-stage="1">Child Speech</button>
+                            <button type="button" class="speech-pattern-btn" data-pattern="esl" data-stage="1">ESL Speaker</button>
+                        </div>
+                        
+                        <div class="form-group">
+                            <textarea id="stage1Speech" placeholder="Speech patterns (slurring, accent, etc.)"></textarea>
+                        </div>
+                        
+                        <h3 class="subsection-title">Stage Transition</h3>
+                        
+                        <div class="form-group">
+                            <label for="stage1Trigger">Key Trigger for Stage Transition</label>
+                            <textarea id="stage1Trigger" placeholder="What triggers the transition to the next stage?"></textarea>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Stage Two -->
+                <div class="stage" id="stage2">
+                    <div class="stage-header" onclick="toggleStage(this.parentNode)">
+                        <div class="stage-number">2</div>
+                        <input type="text" class="stage-title" placeholder="Stage Name (e.g., Escalation)" value="Escalation" onclick="event.stopPropagation()">
+                        <div class="stage-controls">
+                            <button type="button" class="btn btn-sm btn-circle" onclick="event.stopPropagation()">↓</button>
+                            <button type="button" class="btn btn-sm btn-circle" onclick="event.stopPropagation()">↑</button>
+                            <button type="button" class="btn btn-sm btn-circle" onclick="event.stopPropagation()">✕</button>
+                        </div>
+                    </div>
+                    
+                    <div class="stage-content">
+                        <h3 class="subsection-title">Stage-Specific Information</h3>
+                        
+                        <div class="form-group">
+                            <label for="stage2Condition">Current Condition</label>
+                            <textarea id="stage2Condition" placeholder="Describe the patient's condition in this stage"></textarea>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="stage2Progress">Progression From Previous Stage</label>
+                            <textarea id="stage2Progress" placeholder="How has the patient's condition changed since the previous stage?"></textarea>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="stage2Concern">Primary Concern</label>
+                            <textarea id="stage2Concern" placeholder="What is the patient's main concern in this stage?"></textarea>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="stage2Symptoms">Current Symptoms</label>
+                            <textarea id="stage2Symptoms" placeholder="List current symptoms the patient is experiencing"></textarea>
+                        </div>
+                        
+                        <h3 class="subsection-title">Behavioral Reference</h3>
+                        
+                        <div class="form-group">
+                            <label for="stage2Emotional">Emotional Baseline</label>
+                            <textarea id="stage2Emotional" placeholder="Describe the patient's emotional state in this stage"></textarea>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="stage2Challenges">Behavioral Challenges</label>
+                            <textarea id="stage2Challenges" placeholder="Any behavioral challenges the provider might face"></textarea>
+                        </div>
+                        
+                        <h3 class="subsection-title">
+                            <span class="badge badge-warning">Behavioral Cues</span>
+                        </h3>
+                        
+                        <div id="stage2CuesContainer" class="dynamic-items">
+                            <!-- Dynamic stage cues will go here -->
+                        </div>
+                        
+                        <button type="button" class="add-stage-cue-btn btn btn-secondary btn-sm" data-stage="2">
+                            <span class="btn-icon">+</span> Add Behavioral Cue
+                        </button>
+                        
+                        <h3 class="subsection-title">
+                            <span class="badge badge-warning">Dialogue Examples</span>
+                        </h3>
+                        
+                        <div id="stage2DialogueContainer" class="dynamic-items">
+                            <!-- Dynamic stage dialogue examples will go here -->
+                        </div>
+                        
+                        <button type="button" class="add-stage-dialogue-btn btn btn-secondary btn-sm" data-stage="2">
+                            <span class="btn-icon">+</span> Add Dialogue Example
+                        </button>
+                        
+                        <h3 class="subsection-title">
+                            <span class="badge badge-danger">Breaking Point</span>
+                        </h3>
+                        
+                        <div class="form-group">
+                            <textarea id="stage2Breaking" placeholder="Describe the trigger dialogue that signals transition to next stage"></textarea>
+                        </div>
+                        
+                        <h3 class="subsection-title">Speech Patterns</h3>
+                        
+                        <div class="speech-pattern-buttons" id="stage2SpeechPatterns">
+                            <button type="button" class="speech-pattern-btn" data-pattern="none" data-stage="2">None</button>
+                            <button type="button" class="speech-pattern-btn" data-pattern="slurring" data-stage="2">Slurring</button>
+                            <button type="button" class="speech-pattern-btn" data-pattern="stuttering" data-stage="2">Stuttering</button>
+                            <button type="button" class="speech-pattern-btn" data-pattern="southern" data-stage="2">Southern Dialect</button>
+                            <button type="button" class="speech-pattern-btn" data-pattern="british" data-stage="2">British Dialect</button>
+                            <button type="button" class="speech-pattern-btn" data-pattern="elderly" data-stage="2">Elderly Speech</button>
+                            <button type="button" class="speech-pattern-btn" data-pattern="child" data-stage="2">Child Speech</button>
+                            <button type="button" class="speech-pattern-btn" data-pattern="esl" data-stage="2">ESL Speaker</button>
+                        </div>
+                        
+                        <div class="form-group">
+                            <textarea id="stage2Speech" placeholder="Speech patterns (slurring, accent, etc.)"></textarea>
+                        </div>
+                        
+                        <h3 class="subsection-title">Stage Transition</h3>
+                        
+                        <div class="form-group">
+                            <label for="stage2Trigger">Key Trigger for Stage Transition</label>
+                            <textarea id="stage2Trigger" placeholder="What triggers the transition to the next stage?"></textarea>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div style="text-align: center; margin: 20px 0;">
+                <button type="button" id="addStageBtn" class="btn btn-primary">
+                    <span class="btn-icon">+</span> Add Another Stage
+                </button>
+            </div>
+            
+            <!-- Additional Notes Card -->
+            <div class="card">
+                <div class="card-header">
+                    <h2 class="card-title">Additional Notes</h2>
+                    <button type="button" class="toggle-btn">▼</button>
+                </div>
+                
+                <div class="form-group">
+                    <textarea id="additionalNotes" placeholder="Add any additional information or special instructions for the AI patient" style="min-height: 120px;"></textarea>
+                </div>
+            </div>
+            
+            <!-- Footer with action buttons -->
+            <div class="footer">
+                <div class="footer-buttons">
+                    <button type="button" id="loadTemplateBtn" class="btn btn-secondary">
+                        <span class="btn-icon">📂</span> Load Template
+                    </button>
+                </div>
+                
+                <div class="footer-buttons">
+                    <button type="button" id="previewPromptBtn" class="btn btn-success">
+                        <span class="btn-icon">👁️</span> Preview
+                    </button>
+                    <button type="button" id="exportPromptBtn" class="btn btn-primary">
+                        <span class="btn-icon">💾</span> Export
+                    </button>
+                </div>
+            </div>
+        </form>
+    </div>
+    
+    <!-- Floating Action Button -->
+    <div class="fab" id="quickSaveBtn">💾</div>
+    
+    <!-- Export Modal -->
+    <div id="exportModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title">Export Options</h3>
+                <button class="modal-close">&times;</button>
+            </div>
+            <div class="modal-body">
+                <p>Choose your preferred export format:</p>
+                <div style="display: flex; flex-direction: column; gap: 15px; margin-top: 20px;">
+                    <button id="exportText" class="btn btn-secondary">
+                        <span class="btn-icon">📄</span> Export as Text (.txt)
+                    </button>
+                    <button id="exportMarkdown" class="btn btn-secondary">
+                        <span class="btn-icon">📝</span> Export as Markdown (.md)
+                    </button>
+                    <button id="saveLocalStorage" class="btn btn-primary">
+                        <span class="btn-icon">💾</span> Save to Browser Storage
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Template Load Modal -->
+    <div id="loadModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title">Saved Templates</h3>
+                <button class="modal-close">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div id="savedTemplatesList">
+                    <p id="noSavedTemplates" style="text-align: center; color: var(--gray);">No saved templates found</p>
+                    <!-- Template items will be added here -->
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Preview Modal -->
+    <div id="previewModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title">Preview Generated Prompt</h3>
+                <button class="modal-close">&times;</button>
+            </div>
+            <div class="modal-body">
+                <pre id="promptPreview" style="white-space: pre-wrap; background-color: #f8f9fa; padding: 15px; border-radius: 8px; max-height: 500px; overflow-y: auto; font-size: 14px; color: var(--dark);"></pre>
+            </div>
+            <div class="modal-footer">
+                <button id="copyPrompt" class="btn btn-primary">
+                    <span class="btn-icon">📋</span> Copy to Clipboard
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- JavaScript -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Speech patterns library
+            const speechPatterns = {
+                none: "",
+                slurring: "The patient's speech is characterized by slurred pronunciation where consonants are softened and words tend to run together. Hard consonants like 't', 'k', and 'd' are often dulled or omitted. The patient extends vowel sounds and has difficulty with multi-syllabic words. Example: 'I'm feelin' dizzy' becomes 'Mmm feelin' dishhy', and 'What happened last night?' becomes 'Wha' happen lash ni'?'. The patient may also repeat words or trail off mid-sentence.",
+                stuttering: "The patient exhibits stuttering characterized by involuntary repetitions of initial consonants (p-p-please), prolongations of sounds (ssssee), and blocking or stopping mid-word. The stuttering worsens when anxious or under pressure. The patient may also display secondary behaviors like facial tension, eye blinking, or hand movements when struggling with difficult words. More complex or emotionally charged statements trigger more pronounced stuttering.",
+                southern: "The patient speaks with a Southern American dialect characterized by drawn-out vowels (especially the long 'i' sound), dropped 'g' in '-ing' endings, and use of 'y'all' for second-person plural. Phrases like 'might could' (for 'might be able to') and 'fixing to' (preparing to do something) are common. The speech has a melodic quality with rising and falling intonation patterns. Examples: 'I was thinkin' about goin' to the store' and 'Y'all might want to look at this right here.'",
+                british: "The patient speaks with a British accent characterized by non-rhotic pronunciation (dropping the 'r' sound unless followed by a vowel), clear 't' sounds (not flapped as in American English), and distinctive vowel sounds. The patient uses British terminology such as 'lift' instead of 'elevator', 'queue' instead of 'line', and 'flat' instead of 'apartment'. The speech has a more clipped, precise quality with less drawl than American English. Rising intonation may be used at the end of statements.",
+                elderly: "The patient's speech presents characteristics typical of elderly speech patterns: slightly slower rate, occasional word-finding difficulties with self-corrections, and periodic pauses. The voice may have a thinner or breathier quality. The patient sometimes loses track of conversational threads and may use outdated terminology or references. There might be slight tremors in the voice during extended speech and occasional repetition of information already shared.",
+                child: "The patient speaks with simplified grammar and vocabulary typical of a young child (ages 5-7). Speech includes occasional grammatical errors like irregular past tense mistakes ('I goed to the doctor') and pronoun confusion. Articulation may show substitutions like 'w' for 'r' ('vewy' instead of 'very') or simplified consonant clusters ('spoon' becomes 'poon'). The patient uses concrete rather than abstract thinking, with frequent use of 'and then' to connect ideas, and may switch topics abruptly based on immediate associations.",
+                esl: "The patient speaks English as a second language, exhibiting characteristic patterns such as: occasional word order mistakes, article omission or misuse (a/the), difficulty with English-specific sounds, simplified verb tenses, and direct translation of idioms from their native language. The patient may occasionally pause to search for vocabulary, substitute words, or ask for clarification. When emotional or stressed, the accent becomes more pronounced and grammar simplifies further. The patient may occasionally insert words from their native language when English equivalents are unknown."
+            };
+            
+            // Toggle card content
+            const toggleBtns = document.querySelectorAll('.toggle-btn');
+            toggleBtns.forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const card = this.closest('.card');
+                    const content = card.querySelector('.form-group, .subsection-title, .dynamic-items, .btn-sm');
+                    const allContent = card.querySelectorAll('.form-group, .subsection-title, .dynamic-items, .btn-sm');
+                    
+                    allContent.forEach(item => {
+                        if (item.style.display === 'none') {
+                            item.style.display = '';
+                            this.textContent = '▼';
+                        } else {
+                            item.style.display = 'none';
+                            this.textContent = '▶';
+                        }
+                    });
+                });
+            });
+
+            // Toggle stage content
+            window.toggleStage = function(stage) {
+                stage.classList.toggle('collapsed');
+            };
+
+            // Set up speech pattern buttons
+            function initSpeechPatternButtons() {
+                const speechPatternBtns = document.querySelectorAll('.speech-pattern-btn');
+                
+                speechPatternBtns.forEach(btn => {
+                    btn.addEventListener('click', function() {
+                        const patternType = this.getAttribute('data-pattern');
+                        const stageNum = this.getAttribute('data-stage');
+                        const speechTextarea = document.getElementById(`stage${stageNum}Speech`);
+                        
+                        // Reset active state on all buttons in this group
+                        const groupButtons = document.querySelectorAll(`.speech-pattern-btn[data-stage="${stageNum}"]`);
+                        groupButtons.forEach(groupBtn => {
+                            groupBtn.classList.remove('active');
+                        });
+                        
+                        // Set active state on clicked button
+                        this.classList.add('active');
+                        
+                        // Set the speech pattern text
+                        speechTextarea.value = speechPatterns[patternType];
+                    });
+                });
+            }
+            
+            // Initialize speech pattern buttons
+            initSpeechPatternButtons();
+
+            // Modal functionality
+            const modals = document.querySelectorAll('.modal');
+            const modalTriggers = {
+                'exportPromptBtn': 'exportModal',
+                'quickSaveBtn': 'exportModal',
+                'loadTemplateBtn': 'loadModal',
+                'previewPromptBtn': 'previewModal'
+            };
+            
+            // Open modals
+            Object.keys(modalTriggers).forEach(triggerId => {
+                const trigger = document.getElementById(triggerId);
+                const modalId = modalTriggers[triggerId];
+                
+                if (trigger) {
+                    trigger.addEventListener('click', function() {
+                        document.getElementById(modalId).style.display = 'flex';
+                        
+                        // If it's the preview modal, generate the preview
+                        if (modalId === 'previewModal') {
+                            generatePromptPreview();
+                        }
+                        
+                        // If it's the load modal, populate the templates list
+                        if (modalId === 'loadModal') {
+                            loadSavedTemplates();
+                        }
+                    });
+                }
+            });
+            
+            // Close modals
+            const closeBtns = document.querySelectorAll('.modal-close');
+            closeBtns.forEach(btn => {
+                btn.addEventListener('click', function() {
+                    this.closest('.modal').style.display = 'none';
+                });
+            });
+            
+            // Close modal when clicking outside
+            modals.forEach(modal => {
+                modal.addEventListener('click', function(e) {
+                    if (e.target === this) {
+                        this.style.display = 'none';
+                    }
+                });
+            });
+
+            // Dynamic items functionality
+            function createDynamicItem(containerId, inputPlaceholder = "Enter item", selectOptions = null) {
+                const container = document.getElementById(containerId);
+                const dynamicItem = document.createElement('div');
+                dynamicItem.className = 'dynamic-item';
+                
+                let itemHTML = '';
+                
+                if (selectOptions) {
+                    // Create an item with select and input
+                    itemHTML = `
+                        <select class="item-type">
+                            ${selectOptions.map(option => `<option value="${option.value}">${option.label}</option>`).join('')}
+                        </select>
+                        <input type="text" class="item-content" placeholder="${inputPlaceholder}">
+                    `;
+                } else {
+                    // Create a simple input item
+                    itemHTML = `<input type="text" class="item-content" placeholder="${inputPlaceholder}">`;
+                }
+                
+                // Add remove button
+                itemHTML += `<button type="button" class="btn-remove">✕</button>`;
+                
+                dynamicItem.innerHTML = itemHTML;
+                
+                // Add remove event listener
+                const removeBtn = dynamicItem.querySelector('.btn-remove');
+                removeBtn.addEventListener('click', function() {
+                    dynamicItem.remove();
+                });
+                
+                container.appendChild(dynamicItem);
+            }
+            
+            // Add clarifier button
+            const addClarifierBtn = document.getElementById('addClarifierBtn');
+            if (addClarifierBtn) {
+                addClarifierBtn.addEventListener('click', function() {
+                    createDynamicItem('clarifiersContainer', 'Enter a rule for the AI to follow');
+                });
+            }
+            
+            // Add trigger button
+            const addTriggerBtn = document.getElementById('addTriggerBtn');
+            if (addTriggerBtn) {
+                addTriggerBtn.addEventListener('click', function() {
+                    createDynamicItem('triggersContainer', 'Enter a trigger phrase or condition');
+                });
+            }
+            
+            // Add knowledge item button
+            const addKnowledgeBtn = document.getElementById('addKnowledgeBtn');
+            if (addKnowledgeBtn) {
+                addKnowledgeBtn.addEventListener('click', function() {
+                    createDynamicItem('knowledgeContainer', 'Enter information the patient knows (use "you")');
+                });
+            }
+            
+            // Add stage cue buttons
+            const addStageCueBtns = document.querySelectorAll('.add-stage-cue-btn');
+            addStageCueBtns.forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const stageNum = this.getAttribute('data-stage');
+                    const cueTypes = [
+                        { value: 'verbal', label: 'Verbal' },
+                        { value: 'nonverbal', label: 'Non-verbal' },
+                        { value: 'response', label: 'Response Type' }
+                    ];
+                    createDynamicItem(`stage${stageNum}CuesContainer`, 'Describe this behavioral cue', cueTypes);
+                });
+            });
+            
+            // Add stage dialogue buttons
+            const addStageDialogueBtns = document.querySelectorAll('.add-stage-dialogue-btn');
+            addStageDialogueBtns.forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const stageNum = this.getAttribute('data-stage');
+                    createDynamicItem(`stage${stageNum}DialogueContainer`, 'Example of how the patient might respond');
+                });
+            });
+            
+            // Add stage button
+            const addStageBtn = document.getElementById('addStageBtn');
+            if (addStageBtn) {
+                addStageBtn.addEventListener('click', function() {
+                    const stagesContainer = document.getElementById('stagesContainer');
+                    const stageCount = stagesContainer.querySelectorAll('.stage').length;
+                    const newStageNum = stageCount + 1;
+                    
+                    const newStage = document.createElement('div');
+                    newStage.className = 'stage';
+                    newStage.id = `stage${newStageNum}`;
+                    
+                    newStage.innerHTML = `
+                        <div class="stage-header" onclick="toggleStage(this.parentNode)">
+                            <div class="stage-number">${newStageNum}</div>
+                            <input type="text" class="stage-title" placeholder="Stage Name" value="Stage ${newStageNum}" onclick="event.stopPropagation()">
+                            <div class="stage-controls">
+                                <button type="button" class="btn btn-sm btn-circle" onclick="event.stopPropagation()">↓</button>
+                                <button type="button" class="btn btn-sm btn-circle" onclick="event.stopPropagation()">↑</button>
+                                <button type="button" class="btn btn-sm btn-circle" onclick="event.stopPropagation()">✕</button>
+                            </div>
+                        </div>
+                        
+                        <div class="stage-content">
+                            <h3 class="subsection-title">Stage-Specific Information</h3>
+                            
+                            <div class="form-group">
+                                <label for="stage${newStageNum}Condition">Current Condition</label>
+                                <textarea id="stage${newStageNum}Condition" placeholder="Describe the patient's condition in this stage"></textarea>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="stage${newStageNum}Progress">Progression From Previous Stage</label>
+                                <textarea id="stage${newStageNum}Progress" placeholder="How has the patient's condition changed since the previous stage?"></textarea>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="stage${newStageNum}Concern">Primary Concern</label>
+                                <textarea id="stage${newStageNum}Concern" placeholder="What is the patient's main concern in this stage?"></textarea>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="stage${newStageNum}Symptoms">Current Symptoms</label>
+                                <textarea id="stage${newStageNum}Symptoms" placeholder="List current symptoms the patient is experiencing"></textarea>
+                            </div>
+                            
+                            <h3 class="subsection-title">Behavioral Reference</h3>
+                            
+                            <div class="form-group">
+                                <label for="stage${newStageNum}Emotional">Emotional Baseline</label>
+                                <textarea id="stage${newStageNum}Emotional" placeholder="Describe the patient's emotional state in this stage"></textarea>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="stage${newStageNum}Challenges">Behavioral Challenges</label>
+                                <textarea id="stage${newStageNum}Challenges" placeholder="Any behavioral challenges the provider might face"></textarea>
+                            </div>
+                            
+                            <h3 class="subsection-title">
+                                <span class="badge badge-warning">Behavioral Cues</span>
+                            </h3>
+                            
+                            <div id="stage${newStageNum}CuesContainer" class="dynamic-items">
+                                <!-- Dynamic stage cues will go here -->
+                            </div>
+                            
+                            <button type="button" class="add-stage-cue-btn btn btn-secondary btn-sm" data-stage="${newStageNum}">
+                                <span class="btn-icon">+</span> Add Behavioral Cue
+                            </button>
+                            
+                            <h3 class="subsection-title">
+                                <span class="badge badge-warning">Dialogue Examples</span>
+                            </h3>
+                            
+                            <div id="stage${newStageNum}DialogueContainer" class="dynamic-items">
+                                <!-- Dynamic stage dialogue examples will go here -->
+                            </div>
+                            
+                            <button type="button" class="add-stage-dialogue-btn btn btn-secondary btn-sm" data-stage="${newStageNum}">
+                                <span class="btn-icon">+</span> Add Dialogue Example
+                            </button>
+                            
+                            <h3 class="subsection-title">
+                                <span class="badge badge-danger">Breaking Point</span>
+                            </h3>
+                            
+                            <div class="form-group">
+                                <textarea id="stage${newStageNum}Breaking" placeholder="Describe the trigger dialogue that signals transition to next stage"></textarea>
+                            </div>
+                            
+                            <h3 class="subsection-title">Speech Patterns</h3>
+                            
+                            <div class="speech-pattern-buttons" id="stage${newStageNum}SpeechPatterns">
+                                <button type="button" class="speech-pattern-btn" data-pattern="none" data-stage="${newStageNum}">None</button>
+                                <button type="button" class="speech-pattern-btn" data-pattern="slurring" data-stage="${newStageNum}">Slurring</button>
+                                <button type="button" class="speech-pattern-btn" data-pattern="stuttering" data-stage="${newStageNum}">Stuttering</button>
+                                <button type="button" class="speech-pattern-btn" data-pattern="southern" data-stage="${newStageNum}">Southern Dialect</button>
+                                <button type="button" class="speech-pattern-btn" data-pattern="british" data-stage="${newStageNum}">British Dialect</button>
+                                <button type="button" class="speech-pattern-btn" data-pattern="elderly" data-stage="${newStageNum}">Elderly Speech</button>
+                                <button type="button" class="speech-pattern-btn" data-pattern="child" data-stage="${newStageNum}">Child Speech</button>
+                                <button type="button" class="speech-pattern-btn" data-pattern="esl" data-stage="${newStageNum}">ESL Speaker</button>
+                            </div>
+                            
+                            <div class="form-group">
+                                <textarea id="stage${newStageNum}Speech" placeholder="Speech patterns (slurring, accent, etc.)"></textarea>
+                            </div>
+                            
+                            <h3 class="subsection-title">Stage Transition</h3>
+                            
+                            <div class="form-group">
+                                <label for="stage${newStageNum}Trigger">Key Trigger for Stage Transition</label>
+                                <textarea id="stage${newStageNum}Trigger" placeholder="What triggers the transition to the next stage?"></textarea>
+                            </div>
+                        </div>
+                    `;
+                    
+                    stagesContainer.appendChild(newStage);
+                    
+                    // Initialize speech pattern buttons for the new stage
+                    const speechPatternBtns = newStage.querySelectorAll('.speech-pattern-btn');
+                    speechPatternBtns.forEach(btn => {
+                        btn.addEventListener('click', function() {
+                            const patternType = this.getAttribute('data-pattern');
+                            const stageNum = this.getAttribute('data-stage');
+                            const speechTextarea = document.getElementById(`stage${stageNum}Speech`);
+                            
+                            // Reset active state on all buttons in this group
+                            const groupButtons = document.querySelectorAll(`.speech-pattern-btn[data-stage="${stageNum}"]`);
+                            groupButtons.forEach(groupBtn => {
+                                groupBtn.classList.remove('active');
+                            });
+                            
+                            // Set active state on clicked button
+                            this.classList.add('active');
+                            
+                            // Set the speech pattern text
+                            speechTextarea.value = speechPatterns[patternType];
+                        });
+                    });
+                    
+                    // Add event listeners for the new stage's buttons
+                    const newStageCueBtn = newStage.querySelector('.add-stage-cue-btn');
+                    newStageCueBtn.addEventListener('click', function() {
+                        const cueTypes = [
+                            { value: 'verbal', label: 'Verbal' },
+                            { value: 'nonverbal', label: 'Non-verbal' },
+                            { value: 'response', label: 'Response Type' }
+                        ];
+                        createDynamicItem(`stage${newStageNum}CuesContainer`, 'Describe this behavioral cue', cueTypes);
+                    });
+                    
+                    const newStageDialogueBtn = newStage.querySelector('.add-stage-dialogue-btn');
+                    newStageDialogueBtn.addEventListener('click', function() {
+                        createDynamicItem(`stage${newStageNum}DialogueContainer`, 'Example of how the patient might respond');
+                    });
+                    
+                    // Add delete functionality to stage
+                    const deleteBtn = newStage.querySelector('.stage-controls button:last-child');
+                    deleteBtn.addEventListener('click', function(e) {
+                        e.stopPropagation();
+                        if (confirm('Are you sure you want to delete this stage?')) {
+                            newStage.remove();
+                            // Update stage numbers
+                            updateStageNumbers();
+                        }
+                    });
+                    
+                    // Add move up/down functionality
+                    const moveDownBtn = newStage.querySelector('.stage-controls button:first-child');
+                    moveDownBtn.addEventListener('click', function(e) {
+                        e.stopPropagation();
+                        const nextStage = newStage.nextElementSibling;
+                        if (nextStage) {
+                            stagesContainer.insertBefore(nextStage, newStage);
+                            updateStageNumbers();
+                        }
+                    });
+                    
+                    const moveUpBtn = newStage.querySelector('.stage-controls button:nth-child(2)');
+                    moveUpBtn.addEventListener('click', function(e) {
+                        e.stopPropagation();
+                        const prevStage = newStage.previousElementSibling;
+                        if (prevStage) {
+                            stagesContainer.insertBefore(newStage, prevStage);
+                            updateStageNumbers();
+                        }
+                    });
+                });
+            }
+            
+            // Update stage numbers
+            function updateStageNumbers() {
+                const stages = document.querySelectorAll('.stage');
+                stages.forEach((stage, index) => {
+                    const stageNum = index + 1;
+                    stage.id = `stage${stageNum}`;
+                    stage.querySelector('.stage-number').textContent = stageNum;
+                    
+                    // Update all the ids inside the stage
+                    const inputs = stage.querySelectorAll('textarea, input[type="text"]');
+                    inputs.forEach(input => {
+                        if (input.id && input.id.startsWith('stage')) {
+                            const suffix = input.id.split('stage')[1].split(/\d+/)[1];
+                            input.id = `stage${stageNum}${suffix}`;
+                        }
+                    });
+                    
+                    // Update the data-stage attributes
+                    const stageBtns = stage.querySelectorAll('[data-stage]');
+                    stageBtns.forEach(btn => {
+                        btn.setAttribute('data-stage', stageNum);
+                    });
+                    
+                    // Update container ids
+                    const containers = stage.querySelectorAll('[id^="stage"]');
+                    containers.forEach(container => {
+                        if (container.id && container.id.startsWith('stage')) {
+                            const suffix = container.id.split('stage')[1].split(/\d+/)[1];
+                            container.id = `stage${stageNum}${suffix}`;
+                        }
+                    });
+                });
+            }
+            
+            // Initialize existing stage buttons
+            document.querySelectorAll('.stage').forEach((stage, index) => {
+                const stageNum = index + 1;
+                
+                // Delete button
+                const deleteBtn = stage.querySelector('.stage-controls button:last-child');
+                deleteBtn.addEventListener('click', function(e) {
+                    e.stopPropagation();
+                    if (confirm('Are you sure you want to delete this stage?')) {
+                        stage.remove();
+                        updateStageNumbers();
+                    }
+                });
+                
+                // Move down button
+                const moveDownBtn = stage.querySelector('.stage-controls button:first-child');
+                moveDownBtn.addEventListener('click', function(e) {
+                    e.stopPropagation();
+                    const nextStage = stage.nextElementSibling;
+                    if (nextStage) {
+                        const container = document.getElementById('stagesContainer');
+                        container.insertBefore(nextStage, stage);
+                        updateStageNumbers();
+                    }
+                });
+                
+                // Move up button
+                const moveUpBtn = stage.querySelector('.stage-controls button:nth-child(2)');
+                moveUpBtn.addEventListener('click', function(e) {
+                    e.stopPropagation();
+                    const prevStage = stage.previousElementSibling;
+                    if (prevStage) {
+                        const container = document.getElementById('stagesContainer');
+                        container.insertBefore(stage, prevStage);
+                        updateStageNumbers();
+                    }
+                });
+            });
+            
+            // Generate prompt preview
+            function generatePromptPreview() {
+                const scenarioTitle = document.getElementById('scenarioTitle').value || '(No title)';
+                const scenarioFlow = document.getElementById('scenarioFlow').value || '(No overview)';
+                const patientName = document.getElementById('patientName').value || '(No name)';
+                const patientAge = document.getElementById('patientAge').value || '(No age)';
+                const patientHistory = document.getElementById('patientHistory').value || '(No history)';
+                const visitReason = document.getElementById('visitReason').value || '(No reason provided)';
+                
+                // Get clarifiers
+                const clarifiers = [];
+                document.querySelectorAll('#clarifiersContainer .dynamic-item').forEach(item => {
+                    const input = item.querySelector('.item-content');
+                    if (input && input.value.trim()) {
+                        clarifiers.push(input.value.trim());
+                    }
+                });
+                
+                // Get triggers
+                const triggers = [];
+                document.querySelectorAll('#triggersContainer .dynamic-item').forEach(item => {
+                    const input = item.querySelector('.item-content');
+                    if (input && input.value.trim()) {
+                        triggers.push(input.value.trim());
+                    }
+                });
+                
+                // Get knowledge items
+                const knowledge = [];
+                document.querySelectorAll('#knowledgeContainer .dynamic-item').forEach(item => {
+                    const input = item.querySelector('.item-content');
+                    if (input && input.value.trim()) {
+                        knowledge.push(input.value.trim());
+                    }
+                });
+                
+                // Get stages information
+                const stages = [];
+                document.querySelectorAll('.stage').forEach((stage, index) => {
+                    const stageNum = index + 1;
+                    const stageTitle = stage.querySelector('.stage-title').value || `Stage ${stageNum}`;
+                    
+                    // Get stage data
+                    const stageData = {
+                        title: stageTitle,
+                        condition: document.getElementById(`stage${stageNum}Condition`)?.value || '',
+                        progress: document.getElementById(`stage${stageNum}Progress`)?.value || '',
+                        concern: document.getElementById(`stage${stageNum}Concern`)?.value || '',
+                        symptoms: document.getElementById(`stage${stageNum}Symptoms`)?.value || '',
+                        emotional: document.getElementById(`stage${stageNum}Emotional`)?.value || '',
+                        challenges: document.getElementById(`stage${stageNum}Challenges`)?.value || '',
+                        breaking: document.getElementById(`stage${stageNum}Breaking`)?.value || '',
+                        speech: document.getElementById(`stage${stageNum}Speech`)?.value || '',
+                        trigger: document.getElementById(`stage${stageNum}Trigger`)?.value || ''
+                    };
+                    
+                    // Get cues
+                    const cues = [];
+                    document.querySelectorAll(`#stage${stageNum}CuesContainer .dynamic-item`).forEach(item => {
+                        const type = item.querySelector('.item-type')?.value || 'verbal';
+                        const content = item.querySelector('.item-content')?.value || '';
+                        if (content.trim()) {
+                            cues.push({ type, content });
+                        }
+                    });
+                    stageData.cues = cues;
+                    
+                    // Get dialogue examples
+                    const dialogues = [];
+                    document.querySelectorAll(`#stage${stageNum}DialogueContainer .dynamic-item`).forEach(item => {
+                        const content = item.querySelector('.item-content')?.value || '';
+                        if (content.trim()) {
+                            dialogues.push(content);
+                        }
+                    });
+                    stageData.dialogues = dialogues;
+                    
+                    stages.push(stageData);
+                });
+                
+                // Get additional notes
+                const notes = document.getElementById('additionalNotes').value || '';
+                
+                // Generate the formatted prompt with bold headers
+                let promptText = `**${scenarioTitle}**\n\n`;
+                promptText += `**GENERAL OVERVIEW**\n${scenarioFlow}\n\n`;
+                
+                promptText += `**PATIENT INFORMATION**\n`;
+                promptText += `- **Name:** ${patientName}\n`;
+                promptText += `- **Age:** ${patientAge}\n`;
+                promptText += `- **Medical History:** ${patientHistory}\n`;
+                promptText += `- **Reason for Visit:** ${visitReason}\n\n`;
+                
+                if (knowledge.length > 0) {
+                    promptText += `**PATIENT KNOWLEDGE**\n`;
+                    knowledge.forEach(item => {
+                        promptText += `- ${item}\n`;
+                    });
+                    promptText += `\n`;
+                }
+                
+                if (clarifiers.length > 0) {
+                    promptText += `**PATIENT CLARIFIERS**\n`;
+                    clarifiers.forEach(item => {
+                        promptText += `- ${item}\n`;
+                    });
+                    promptText += `\n`;
+                }
+                
+                if (triggers.length > 0) {
+                    promptText += `**TRIGGER REFERENCES**\n`;
+                    triggers.forEach(item => {
+                        promptText += `- ${item}\n`;
+                    });
+                    promptText += `\n`;
+                }
+                
+                // Add stages
+                promptText += `**PATIENT INTERACTION STAGES**\n\n`;
+                
+                stages.forEach((stage, index) => {
+                    promptText += `**STAGE ${index + 1}: ${stage.title}**\n\n`;
+                    
+                    if (stage.condition) {
+                        promptText += `**Current Condition**\n${stage.condition}\n\n`;
+                    }
+                    
+                    if (index > 0 && stage.progress) {
+                        promptText += `**Progression From Previous Stage**\n${stage.progress}\n\n`;
+                    }
+                    
+                    if (stage.concern) {
+                        promptText += `**Primary Concern**\n${stage.concern}\n\n`;
+                    }
+                    
+                    if (stage.symptoms) {
+                        promptText += `**Current Symptoms**\n${stage.symptoms}\n\n`;
+                    }
+                    
+                    if (stage.emotional) {
+                        promptText += `**Emotional Baseline**\n${stage.emotional}\n\n`;
+                    }
+                    
+                    if (stage.challenges) {
+                        promptText += `**Behavioral Challenges**\n${stage.challenges}\n\n`;
+                    }
+                    
+                    if (stage.cues && stage.cues.length > 0) {
+                        promptText += `**Behavioral Cues**\n`;
+                        stage.cues.forEach(cue => {
+                            promptText += `- **${cue.type}:** ${cue.content}\n`;
+                        });
+                        promptText += `\n`;
+                    }
+                    
+                    if (stage.dialogues && stage.dialogues.length > 0) {
+                        promptText += `**Dialogue Examples**\n`;
+                        stage.dialogues.forEach(dialogue => {
+                            promptText += `- "${dialogue}"\n`;
+                        });
+                        promptText += `\n`;
+                    }
+                    
+                    if (stage.breaking) {
+                        promptText += `**Breaking Point**\n${stage.breaking}\n\n`;
+                    }
+                    
+                    if (stage.speech) {
+                        promptText += `**Speech Patterns**\n${stage.speech}\n\n`;
+                    }
+                    
+                    if (stage.trigger) {
+                        promptText += `**Transition Trigger**\n${stage.trigger}\n\n`;
+                    }
+                });
+                
+                if (notes) {
+                    promptText += `**ADDITIONAL NOTES**\n${notes}\n\n`;
+                }
+                
+                promptText += `---\nPrompt created using the AI Patient Template Generator`;
+                
+                // Display the preview
+                document.getElementById('promptPreview').textContent = promptText;
+            }
+            
+            // Copy prompt to clipboard
+            const copyPromptBtn = document.getElementById('copyPrompt');
+            if (copyPromptBtn) {
+                copyPromptBtn.addEventListener('click', function() {
+                    const promptText = document.getElementById('promptPreview').textContent;
+                    navigator.clipboard.writeText(promptText).then(() => {
+                        alert('Prompt copied to clipboard!');
+                    }).catch(err => {
+                        console.error('Failed to copy: ', err);
+                        alert('Failed to copy to clipboard. Please copy manually.');
+                    });
+                });
+            }
+            
+            // Save to browser storage
+            const saveLocalStorageBtn = document.getElementById('saveLocalStorage');
+            if (saveLocalStorageBtn) {
+                saveLocalStorageBtn.addEventListener('click', function() {
+                    saveTemplateToLocalStorage();
+                });
+            }
+            
+            // Quick save button
+            const quickSaveBtn = document.getElementById('quickSaveBtn');
+            if (quickSaveBtn) {
+                quickSaveBtn.addEventListener('click', function() {
+                    saveTemplateToLocalStorage();
+                });
+            }
+            
+            // Save template to local storage
+            function saveTemplateToLocalStorage() {
+                const scenarioTitle = document.getElementById('scenarioTitle').value || 'Untitled Template';
+                
+                // Collect all form data into a template object
+                const template = collectFormData();
+                
+                // Get existing templates from localStorage
+                let templates = JSON.parse(localStorage.getItem('aiPatientTemplates')) || {};
+                
+                // Use timestamp as unique ID if not provided
+                const timestamp = new Date().getTime();
+                const templateId = `template_${timestamp}`;
+                
+                // Add metadata
+                template.metadata = {
+                    id: templateId,
+                    title: scenarioTitle,
+                    created: new Date().toISOString(),
+                    lastModified: new Date().toISOString()
+                };
+                
+                // Save to localStorage
+                templates[templateId] = template;
+                localStorage.setItem('aiPatientTemplates', JSON.stringify(templates));
+                
+                alert(`Template "${scenarioTitle}" saved successfully!`);
+                
+                // Close the modal if open
+                document.getElementById('exportModal').style.display = 'none';
+            }
+            
+            // Collect all form data into an object
+            function collectFormData() {
+                const template = {
+                    general: {
+                        title: document.getElementById('scenarioTitle').value || '',
+                        overview: document.getElementById('scenarioFlow').value || '',
+                        clarifiers: [],
+                        triggers: []
+                    },
+                    patient: {
+                        name: document.getElementById('patientName').value || '',
+                        age: document.getElementById('patientAge').value || '',
+                        history: document.getElementById('patientHistory').value || '',
+                        visitReason: document.getElementById('visitReason').value || '',
+                        knowledge: []
+                    },
+                    stages: [],
+                    notes: document.getElementById('additionalNotes').value || ''
+                };
+                
+                // Collect clarifiers
+                document.querySelectorAll('#clarifiersContainer .dynamic-item').forEach(item => {
+                    const input = item.querySelector('.item-content');
+                    if (input && input.value.trim()) {
+                        template.general.clarifiers.push(input.value.trim());
+                    }
+                });
+                
+                // Collect triggers
+                document.querySelectorAll('#triggersContainer .dynamic-item').forEach(item => {
+                    const input = item.querySelector('.item-content');
+                    if (input && input.value.trim()) {
+                        template.general.triggers.push(input.value.trim());
+                    }
+                });
+                
+                // Collect knowledge items
+                document.querySelectorAll('#knowledgeContainer .dynamic-item').forEach(item => {
+                    const input = item.querySelector('.item-content');
+                    if (input && input.value.trim()) {
+                        template.patient.knowledge.push(input.value.trim());
+                    }
+                });
+                
+                // Collect stages
+                document.querySelectorAll('.stage').forEach((stage, index) => {
+                    const stageNum = index + 1;
+                    const stageTitle = stage.querySelector('.stage-title').value || `Stage ${stageNum}`;
+                    
+                    const stageData = {
+                        title: stageTitle,
+                        condition: document.getElementById(`stage${stageNum}Condition`)?.value || '',
+                        progress: document.getElementById(`stage${stageNum}Progress`)?.value || '',
+                        concern: document.getElementById(`stage${stageNum}Concern`)?.value || '',
+                        symptoms: document.getElementById(`stage${stageNum}Symptoms`)?.value || '',
+                        emotional: document.getElementById(`stage${stageNum}Emotional`)?.value || '',
+                        challenges: document.getElementById(`stage${stageNum}Challenges`)?.value || '',
+                        breaking: document.getElementById(`stage${stageNum}Breaking`)?.value || '',
+                        speech: document.getElementById(`stage${stageNum}Speech`)?.value || '',
+                        trigger: document.getElementById(`stage${stageNum}Trigger`)?.value || '',
+                        cues: [],
+                        dialogues: []
+                    };
+                    
+                    // Collect cues
+                    document.querySelectorAll(`#stage${stageNum}CuesContainer .dynamic-item`).forEach(item => {
+                        const type = item.querySelector('.item-type')?.value || 'verbal';
+                        const content = item.querySelector('.item-content')?.value || '';
+                        if (content.trim()) {
+                            stageData.cues.push({ type, content });
+                        }
+                    });
+                    
+                    // Collect dialogue examples
+                    document.querySelectorAll(`#stage${stageNum}DialogueContainer .dynamic-item`).forEach(item => {
+                        const content = item.querySelector('.item-content')?.value || '';
+                        if (content.trim()) {
+                            stageData.dialogues.push(content);
+                        }
+                    });
+                    
+                    template.stages.push(stageData);
+                });
+                
+                return template;
+            }
+            
+            // Load saved templates
+            function loadSavedTemplates() {
+                const templatesList = document.getElementById('savedTemplatesList');
+                const noTemplatesMsg = document.getElementById('noSavedTemplates');
+                
+                // Clear existing list
+                while (templatesList.children.length > 1) {
+                    templatesList.removeChild(templatesList.lastChild);
+                }
+                
+                // Get templates from localStorage
+                const templates = JSON.parse(localStorage.getItem('aiPatientTemplates')) || {};
+                const templateIds = Object.keys(templates);
+                
+                if (templateIds.length === 0) {
+                    noTemplatesMsg.style.display = 'block';
+                    return;
+                }
+                
+                noTemplatesMsg.style.display = 'none';
+                
+                // Add each template to the list
+                templateIds.forEach(id => {
+                    const template = templates[id];
+                    const metadata = template.metadata || { title: 'Untitled', lastModified: new Date().toISOString() };
+                    
+                    const itemElement = document.createElement('div');
+                    itemElement.className = 'template-item';
+                    itemElement.innerHTML = `
+                        <div class="template-info">
+                            <div class="template-title">${metadata.title}</div>
+                            <div class="template-date">Last modified: ${new Date(metadata.lastModified).toLocaleString()}</div>
+                        </div>
+                        <div class="template-actions">
+                            <button class="btn btn-sm btn-secondary load-template" data-id="${id}">Load</button>
+                            <button class="btn btn-sm btn-warning delete-template" data-id="${id}">Delete</button>
+                        </div>
+                    `;
+                    
+                    templatesList.appendChild(itemElement);
+                    
+                    // Add event listeners
+                    const loadBtn = itemElement.querySelector('.load-template');
+                    loadBtn.addEventListener('click', function() {
+                        loadTemplate(id);
+                    });
+                    
+                    const deleteBtn = itemElement.querySelector('.delete-template');
+                    deleteBtn.addEventListener('click', function() {
+                        deleteTemplate(id);
+                    });
+                });
+            }
+            
+            // Load a template
+            function loadTemplate(templateId) {
+                const templates = JSON.parse(localStorage.getItem('aiPatientTemplates')) || {};
+                const template = templates[templateId];
+                
+                if (!template) {
+                    alert('Template not found!');
+                    return;
+                }
+                
+                // Confirm before loading
+                if (!confirm('Loading this template will replace your current form data. Continue?')) {
+                    return;
+                }
+                
+                // Clear existing form data
+                clearForm();
+                
+                // Populate general info
+                document.getElementById('scenarioTitle').value = template.general.title || '';
+                document.getElementById('scenarioFlow').value = template.general.overview || '';
+                
+                // Populate patient info
+                document.getElementById('patientName').value = template.patient.name || '';
+                document.getElementById('patientAge').value = template.patient.age || '';
+                document.getElementById('patientHistory').value = template.patient.history || '';
+                document.getElementById('visitReason').value = template.patient.visitReason || '';
+                
+                // Add clarifiers
+                const clarifiersContainer = document.getElementById('clarifiersContainer');
+                template.general.clarifiers.forEach(clarifier => {
+                    const item = createDynamicItemElement(clarifier);
+                    clarifiersContainer.appendChild(item);
+                });
+                
+                // Add triggers
+                const triggersContainer = document.getElementById('triggersContainer');
+                template.general.triggers.forEach(trigger => {
+                    const item = createDynamicItemElement(trigger);
+                    triggersContainer.appendChild(item);
+                });
+                
+                // Add knowledge items
+                const knowledgeContainer = document.getElementById('knowledgeContainer');
+                template.patient.knowledge.forEach(knowledge => {
+                    const item = createDynamicItemElement(knowledge);
+                    knowledgeContainer.appendChild(item);
+                });
+                
+                // Clear existing stages except for the first two
+                const stagesContainer = document.getElementById('stagesContainer');
+                while (stagesContainer.children.length > 2) {
+                    stagesContainer.removeChild(stagesContainer.lastChild);
+                }
+                
+                // Add or update stages
+                template.stages.forEach((stage, index) => {
+                    const stageNum = index + 1;
+                    let stageElement;
+                    
+                    if (stageNum <= 2) {
+                        // Update existing stage
+                        stageElement = document.getElementById(`stage${stageNum}`);
+                    } else {
+                        // Create new stage
+                        stageElement = document.createElement('div');
+                        stageElement.className = 'stage';
+                        stageElement.id = `stage${stageNum}`;
+                        
+                        stageElement.innerHTML = `
+                            <div class="stage-header" onclick="toggleStage(this.parentNode)">
+                                <div class="stage-number">${stageNum}</div>
+                                <input type="text" class="stage-title" placeholder="Stage Name" value="${stage.title}" onclick="event.stopPropagation()">
+                                <div class="stage-controls">
+                                    <button type="button" class="btn btn-sm btn-circle" onclick="event.stopPropagation()">↓</button>
+                                    <button type="button" class="btn btn-sm btn-circle" onclick="event.stopPropagation()">↑</button>
+                                    <button type="button" class="btn btn-sm btn-circle" onclick="event.stopPropagation()">✕</button>
+                                </div>
+                            </div>
+                            
+                            <div class="stage-content">
+                                <!-- Stage content will be populated later -->
+                            </div>
+                        `;
+                        
+                        stagesContainer.appendChild(stageElement);
+                        
+                        // Add event listeners to new stage buttons
+                        const deleteBtn = stageElement.querySelector('.stage-controls button:last-child');
+                        deleteBtn.addEventListener('click', function(e) {
+                            e.stopPropagation();
+                            if (confirm('Are you sure you want to delete this stage?')) {
+                                stageElement.remove();
+                                updateStageNumbers();
+                            }
+                        });
+                        
+                        const moveDownBtn = stageElement.querySelector('.stage-controls button:first-child');
+                        moveDownBtn.addEventListener('click', function(e) {
+                            e.stopPropagation();
+                            const nextStage = stageElement.nextElementSibling;
+                            if (nextStage) {
+                                stagesContainer.insertBefore(nextStage, stageElement);
+                                updateStageNumbers();
+                            }
+                        });
+                        
+                        const moveUpBtn = stageElement.querySelector('.stage-controls button:nth-child(2)');
+                        moveUpBtn.addEventListener('click', function(e) {
+                            e.stopPropagation();
+                            const prevStage = stageElement.previousElementSibling;
+                            if (prevStage) {
+                                stagesContainer.insertBefore(stageElement, prevStage);
+                                updateStageNumbers();
+                            }
+                        });
+                    }
+                    
+                    // Update stage title
+                    stageElement.querySelector('.stage-title').value = stage.title;
+                    
+                    // Update or create stage fields
+                    if (stageNum <= 2) {
+                        // For existing stages, just update values
+                        document.getElementById(`stage${stageNum}Condition`).value = stage.condition || '';
+                        if (document.getElementById(`stage${stageNum}Progress`)) {
+                            document.getElementById(`stage${stageNum}Progress`).value = stage.progress || '';
+                        }
+                        document.getElementById(`stage${stageNum}Concern`).value = stage.concern || '';
+                        document.getElementById(`stage${stageNum}Symptoms`).value = stage.symptoms || '';
+                        document.getElementById(`stage${stageNum}Emotional`).value = stage.emotional || '';
+                        document.getElementById(`stage${stageNum}Challenges`).value = stage.challenges || '';
+                        document.getElementById(`stage${stageNum}Breaking`).value = stage.breaking || '';
+                        document.getElementById(`stage${stageNum}Speech`).value = stage.speech || '';
+                        document.getElementById(`stage${stageNum}Trigger`).value = stage.trigger || '';
+                    } else {
+                        // For new stages, create the content
+                        const stageContent = stageElement.querySelector('.stage-content');
+                        stageContent.innerHTML = `
+                            <h3 class="subsection-title">Stage-Specific Information</h3>
+                            
+                            <div class="form-group">
+                                <label for="stage${stageNum}Condition">Current Condition</label>
+                                <textarea id="stage${stageNum}Condition" placeholder="Describe the patient's condition in this stage">${stage.condition || ''}</textarea>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="stage${stageNum}Progress">Progression From Previous Stage</label>
+                                <textarea id="stage${stageNum}Progress" placeholder="How has the patient's condition changed since the previous stage?">${stage.progress || ''}</textarea>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="stage${stageNum}Concern">Primary Concern</label>
+                                <textarea id="stage${stageNum}Concern" placeholder="What is the patient's main concern in this stage?">${stage.concern || ''}</textarea>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="stage${stageNum}Symptoms">Current Symptoms</label>
+                                <textarea id="stage${stageNum}Symptoms" placeholder="List current symptoms the patient is experiencing">${stage.symptoms || ''}</textarea>
+                            </div>
+                            
+                            <h3 class="subsection-title">Behavioral Reference</h3>
+                            
+                            <div class="form-group">
+                                <label for="stage${stageNum}Emotional">Emotional Baseline</label>
+                                <textarea id="stage${stageNum}Emotional" placeholder="Describe the patient's emotional state in this stage">${stage.emotional || ''}</textarea>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="stage${stageNum}Challenges">Behavioral Challenges</label>
+                                <textarea id="stage${stageNum}Challenges" placeholder="Any behavioral challenges the provider might face">${stage.challenges || ''}</textarea>
+                            </div>
+                            
+                            <h3 class="subsection-title">
+                                <span class="badge badge-warning">Behavioral Cues</span>
+                            </h3>
+                            
+                            <div id="stage${stageNum}CuesContainer" class="dynamic-items">
+                                <!-- Dynamic stage cues will go here -->
+                            </div>
+                            
+                            <button type="button" class="add-stage-cue-btn btn btn-secondary btn-sm" data-stage="${stageNum}">
+                                <span class="btn-icon">+</span> Add Behavioral Cue
+                            </button>
+                            
+                            <h3 class="subsection-title">
+                                <span class="badge badge-warning">Dialogue Examples</span>
+                            </h3>
+                            
+                            <div id="stage${stageNum}DialogueContainer" class="dynamic-items">
+                                <!-- Dynamic stage dialogue examples will go here -->
+                            </div>
+                            
+                            <button type="button" class="add-stage-dialogue-btn btn btn-secondary btn-sm" data-stage="${stageNum}">
+                                <span class="btn-icon">+</span> Add Dialogue Example
+                            </button>
+                            
+                            <h3 class="subsection-title">
+                                <span class="badge badge-danger">Breaking Point</span>
+                            </h3>
+                            
+                            <div class="form-group">
+                                <textarea id="stage${stageNum}Breaking" placeholder="Describe the trigger dialogue that signals transition to next stage">${stage.breaking || ''}</textarea>
+                            </div>
+                            
+                            <h3 class="subsection-title">Speech Patterns</h3>
+                            
+                            <div class="speech-pattern-buttons" id="stage${stageNum}SpeechPatterns">
+                                <button type="button" class="speech-pattern-btn" data-pattern="none" data-stage="${stageNum}">None</button>
+                                <button type="button" class="speech-pattern-btn" data-pattern="slurring" data-stage="${stageNum}">Slurring</button>
+                                <button type="button" class="speech-pattern-btn" data-pattern="stuttering" data-stage="${stageNum}">Stuttering</button>
+                                <button type="button" class="speech-pattern-btn" data-pattern="southern" data-stage="${stageNum}">Southern Dialect</button>
+                                <button type="button" class="speech-pattern-btn" data-pattern="british" data-stage="${stageNum}">British Dialect</button>
+                                <button type="button" class="speech-pattern-btn" data-pattern="elderly" data-stage="${stageNum}">Elderly Speech</button>
+                                <button type="button" class="speech-pattern-btn" data-pattern="child" data-stage="${stageNum}">Child Speech</button>
+                                <button type="button" class="speech-pattern-btn" data-pattern="esl" data-stage="${stageNum}">ESL Speaker</button>
+                            </div>
+                            
+                            <div class="form-group">
+                                <textarea id="stage${stageNum}Speech" placeholder="Speech patterns (slurring, accent, etc.)">${stage.speech || ''}</textarea>
+                            </div>
+                            
+                            <h3 class="subsection-title">Stage Transition</h3>
+                            
+                            <div class="form-group">
+                                <label for="stage${stageNum}Trigger">Key Trigger for Stage Transition</label>
+                                <textarea id="stage${stageNum}Trigger" placeholder="What triggers the transition to the next stage?">${stage.trigger || ''}</textarea>
+                            </div>
+                        `;
+                        
+                        // Add event listeners to the new buttons
+                        const cueBtn = stageContent.querySelector('.add-stage-cue-btn');
+                        cueBtn.addEventListener('click', function() {
+                            const cueTypes = [
+                                { value: 'verbal', label: 'Verbal' },
+                                { value: 'nonverbal', label: 'Non-verbal' },
+                                { value: 'response', label: 'Response Type' }
+                            ];
+                            createDynamicItem(`stage${stageNum}CuesContainer`, 'Describe this behavioral cue', cueTypes);
+                        });
+                        
+                        const dialogueBtn = stageContent.querySelector('.add-stage-dialogue-btn');
+                        dialogueBtn.addEventListener('click', function() {
+                            createDynamicItem(`stage${stageNum}DialogueContainer`, 'Example of how the patient might respond');
+                        });
+                        
+                        // Initialize speech pattern buttons
+                        const speechPatternBtns = stageContent.querySelectorAll('.speech-pattern-btn');
+                        speechPatternBtns.forEach(btn => {
+                            btn.addEventListener('click', function() {
+                                const patternType = this.getAttribute('data-pattern');
+                                const stgNum = this.getAttribute('data-stage');
+                                const speechTextarea = document.getElementById(`stage${stgNum}Speech`);
+                                
+                                // Reset active state on all buttons in this group
+                                const groupButtons = document.querySelectorAll(`.speech-pattern-btn[data-stage="${stgNum}"]`);
+                                groupButtons.forEach(groupBtn => {
+                                    groupBtn.classList.remove('active');
+                                });
+                                
+                                // Set active state on clicked button
+                                this.classList.add('active');
+                                
+                                // Set the speech pattern text
+                                speechTextarea.value = speechPatterns[patternType];
+                            });
+                        });
+                    }
+                    
+                    // Clear existing cues and dialogue examples
+                    const cuesContainer = document.getElementById(`stage${stageNum}CuesContainer`);
+                    while (cuesContainer.firstChild) {
+                        cuesContainer.removeChild(cuesContainer.firstChild);
+                    }
+                    
+                    const dialoguesContainer = document.getElementById(`stage${stageNum}DialogueContainer`);
+                    while (dialoguesContainer.firstChild) {
+                        dialoguesContainer.removeChild(dialoguesContainer.firstChild);
+                    }
+                    
+                    // Add cues
+                    stage.cues.forEach(cue => {
+                        const cueTypes = [
+                            { value: 'verbal', label: 'Verbal' },
+                            { value: 'nonverbal', label: 'Non-verbal' },
+                            { value: 'response', label: 'Response Type' }
+                        ];
+                        const item = createDynamicItemElementWithType(cue.content, cue.type, cueTypes);
+                        cuesContainer.appendChild(item);
+                    });
+                    
+                    // Add dialogue examples
+                    stage.dialogues.forEach(dialogue => {
+                        const item = createDynamicItemElement(dialogue);
+                        dialoguesContainer.appendChild(item);
+                    });
+                });
+                
+                // Add additional notes
+                document.getElementById('additionalNotes').value = template.notes || '';
+                
+                // Close the modal
+                document.getElementById('loadModal').style.display = 'none';
+                
+                alert('Template loaded successfully!');
+            }
+            
+            // Delete a template
+            function deleteTemplate(templateId) {
+                if (!confirm('Are you sure you want to delete this template? This cannot be undone.')) {
+                    return;
+                }
+                
+                // Get templates from localStorage
+                let templates = JSON.parse(localStorage.getItem('aiPatientTemplates')) || {};
+                
+                // Delete the template
+                delete templates[templateId];
+                
+                // Save updated templates
+                localStorage.setItem('aiPatientTemplates', JSON.stringify(templates));
+                
+                // Refresh the templates list
+                loadSavedTemplates();
+                
+                alert('Template deleted successfully!');
+            }
+            
+            // Helper function to create a dynamic item element
+            function createDynamicItemElement(content) {
+                const item = document.createElement('div');
+                item.className = 'dynamic-item';
+                
+                item.innerHTML = `
+                    <input type="text" class="item-content" value="${content || ''}">
+                    <button type="button" class="btn-remove">✕</button>
+                `;
+                
+                // Add remove event listener
+                const removeBtn = item.querySelector('.btn-remove');
+                removeBtn.addEventListener('click', function() {
+                    item.remove();
+                });
+                
+                return item;
+            }
+            
+            // Helper function to create a dynamic item with type
+            function createDynamicItemElementWithType(content, type, options) {
+                const item = document.createElement('div');
+                item.className = 'dynamic-item';
+                
+                let selectHTML = `<select class="item-type">`;
+                options.forEach(option => {
+                    const selected = option.value === type ? 'selected' : '';
+                    selectHTML += `<option value="${option.value}" ${selected}>${option.label}</option>`;
+                });
+                selectHTML += `</select>`;
+                
+                item.innerHTML = `
+                    ${selectHTML}
+                    <input type="text" class="item-content" value="${content || ''}">
+                    <button type="button" class="btn-remove">✕</button>
+                `;
+                
+                // Add remove event listener
+                const removeBtn = item.querySelector('.btn-remove');
+                removeBtn.addEventListener('click', function() {
+                    item.remove();
+                });
+                
+                return item;
+            }
+            
+            // Clear the form
+            function clearForm() {
+                // Clear text inputs and textareas
+                const inputs = document.querySelectorAll('input[type="text"], textarea');
+                inputs.forEach(input => {
+                    input.value = '';
+                });
+                
+                // Clear dynamic items
+                const dynamicContainers = document.querySelectorAll('.dynamic-items');
+                dynamicContainers.forEach(container => {
+                    while (container.firstChild) {
+                        container.removeChild(container.firstChild);
+                    }
+                });
+                
+                // Reset all speech pattern buttons
+                const speechPatternBtns = document.querySelectorAll('.speech-pattern-btn');
+                speechPatternBtns.forEach(btn => {
+                    btn.classList.remove('active');
+                });
+            }
+            
+            // Export buttons
+            document.getElementById('exportText').addEventListener('click', function() {
+                generatePromptPreview();
+                const promptText = document.getElementById('promptPreview').textContent;
+                downloadFile(promptText, 'patient_template.txt', 'text/plain');
+            });
+            
+            document.getElementById('exportMarkdown').addEventListener('click', function() {
+                generatePromptPreview();
+                const promptText = document.getElementById('promptPreview').textContent;
+                downloadFile(promptText, 'patient_template.md', 'text/markdown');
+            });
+            
+            // Helper function to download a file
+            function downloadFile(content, filename, contentType) {
+                const blob = new Blob([content], { type: contentType });
+                const url = URL.createObjectURL(blob);
+                
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = filename;
+                a.click();
+                
+                URL.revokeObjectURL(url);
+                
+                // Close the modal
+                document.getElementById('exportModal').style.display = 'none';
+            }
+        });
+    </script>
+</body>
+</html>
