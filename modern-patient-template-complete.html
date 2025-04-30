@@ -1,0 +1,862 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Modern AI Patient Template</title>
+    <style>
+        :root {
+            --primary: #4361ee;
+            --secondary: #3a0ca3;
+            --success: #4cc9f0;
+            --warning: #f72585;
+            --light: #f8f9fa;
+            --dark: #212529;
+            --gray: #adb5bd;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background-color: #f8f9fa;
+            color: var(--dark);
+            line-height: 1.6;
+        }
+        
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        header {
+            text-align: center;
+            margin-bottom: 30px;
+            position: relative;
+        }
+        
+        h1 {
+            font-size: 28px;
+            font-weight: 700;
+            color: var(--primary);
+            margin-bottom: 10px;
+        }
+        
+        .card {
+            background-color: white;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+            padding: 25px;
+            margin-bottom: 25px;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+        
+        .card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 6px 16px rgba(0,0,0,0.1);
+        }
+        
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid #eee;
+        }
+        
+        .card-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: var(--secondary);
+        }
+        
+        .toggle-btn {
+            background: none;
+            border: none;
+            color: var(--gray);
+            font-size: 18px;
+            cursor: pointer;
+            transition: color 0.2s;
+        }
+        
+        .toggle-btn:hover {
+            color: var(--primary);
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 6px;
+            font-weight: 500;
+            font-size: 14px;
+            color: var(--dark);
+        }
+        
+        input[type="text"], 
+        textarea, 
+        select {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #e9ecef;
+            border-radius: 8px;
+            font-size: 14px;
+            transition: border-color 0.2s, box-shadow 0.2s;
+        }
+        
+        input[type="text"]:focus, 
+        textarea:focus, 
+        select:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(67, 97, 238, 0.2);
+        }
+        
+        textarea {
+            min-height: 100px;
+            resize: vertical;
+        }
+        
+        .hint {
+            font-size: 12px;
+            color: var(--gray);
+            margin-top: 4px;
+        }
+        
+        .dynamic-items {
+            margin-bottom: 15px;
+        }
+        
+        .dynamic-item {
+            display: flex;
+            margin-bottom: 8px;
+            align-items: center;
+            animation: fadeIn 0.3s;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .item-content {
+            flex-grow: 1;
+            margin-right: 10px;
+        }
+        
+        .item-type {
+            width: 130px;
+            margin-right: 10px;
+        }
+        
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            padding: 8px 16px;
+            border-radius: 8px;
+            font-weight: 500;
+            font-size: 14px;
+            cursor: pointer;
+            transition: all 0.2s;
+            border: none;
+        }
+        
+        .btn-icon {
+            margin-right: 6px;
+        }
+        
+        .btn-primary {
+            background-color: var(--primary);
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            background-color: #3a56d4;
+        }
+        
+        .btn-secondary {
+            background-color: #e9ecef;
+            color: var(--dark);
+        }
+        
+        .btn-secondary:hover {
+            background-color: #dee2e6;
+        }
+        
+        .btn-success {
+            background-color: var(--success);
+            color: white;
+        }
+        
+        .btn-success:hover {
+            background-color: #3db8dc;
+        }
+        
+        .btn-warning {
+            background-color: var(--warning);
+            color: white;
+        }
+        
+        .btn-warning:hover {
+            background-color: #e61c7a;
+        }
+        
+        .btn-sm {
+            padding: 6px 12px;
+            font-size: 12px;
+        }
+        
+        .btn-circle {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            padding: 0;
+        }
+        
+        .btn-remove {
+            background-color: #f1f3f5;
+            color: #495057;
+            width: 28px;
+            height: 28px;
+            padding: 0;
+            border-radius: 50%;
+        }
+        
+        .btn-remove:hover {
+            background-color: #e74c3c;
+            color: white;
+        }
+        
+        .stage {
+            background-color: white;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+            margin-bottom: 25px;
+            overflow: hidden;
+        }
+        
+        .stage-header {
+            background-color: #f8f9fa;
+            padding: 15px 25px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+        
+        .stage-header:hover {
+            background-color: #e9ecef;
+        }
+        
+        .stage-number {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 32px;
+            height: 32px;
+            background-color: var(--primary);
+            color: white;
+            border-radius: 50%;
+            font-weight: 600;
+            margin-right: 15px;
+        }
+        
+        .stage-title {
+            font-size: 16px;
+            font-weight: 600;
+            flex-grow: 1;
+        }
+        
+        .stage-controls {
+            display: flex;
+            gap: 5px;
+        }
+        
+        .stage-content {
+            padding: 25px;
+            border-top: 1px solid #eee;
+        }
+        
+        .collapsed .stage-content {
+            display: none;
+        }
+        
+        .badge {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 500;
+        }
+        
+        .badge-warning {
+            background-color: #fff2cc;
+            color: #e69b00;
+        }
+        
+        .badge-danger {
+            background-color: #ffcccc;
+            color: #cc0000;
+        }
+        
+        .section-title {
+            color: var(--secondary);
+            font-size: 16px;
+            font-weight: 600;
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid #eee;
+        }
+        
+        .subsection-title {
+            color: var(--dark);
+            font-size: 14px;
+            font-weight: 600;
+            margin: 20px 0 10px 0;
+        }
+        
+        .footer {
+            display: flex;
+            justify-content: space-between;
+            padding: 20px 0;
+            margin-top: 30px;
+        }
+        
+        .footer-buttons {
+            display: flex;
+            gap: 10px;
+        }
+        
+        /* Modal styles */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.5);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .modal-content {
+            background-color: white;
+            border-radius: 12px;
+            width: 90%;
+            max-width: 500px;
+            max-height: 90%;
+            overflow: auto;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.2);
+            animation: modalFadeIn 0.3s;
+        }
+        
+        @keyframes modalFadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .modal-header {
+            padding: 20px 25px;
+            border-bottom: 1px solid #eee;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .modal-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: var(--dark);
+        }
+        
+        .modal-close {
+            background: none;
+            border: none;
+            font-size: 22px;
+            cursor: pointer;
+            color: #adb5bd;
+            transition: color 0.2s;
+        }
+        
+        .modal-close:hover {
+            color: var(--dark);
+        }
+        
+        .modal-body {
+            padding: 25px;
+            max-height: 60vh;
+            overflow-y: auto;
+        }
+        
+        .modal-footer {
+            padding: 15px 25px;
+            border-top: 1px solid #eee;
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+        }
+        
+        .template-item {
+            padding: 15px;
+            border-radius: 8px;
+            background-color: #f8f9fa;
+            margin-bottom: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+        
+        .template-item:hover {
+            background-color: #e9ecef;
+        }
+        
+        .template-info {
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .template-title {
+            font-weight: 600;
+            font-size: 14px;
+            color: var(--dark);
+        }
+        
+        .template-date {
+            font-size: 12px;
+            color: var(--gray);
+        }
+        
+        .template-actions {
+            display: flex;
+            gap: 8px;
+        }
+        
+        .fab {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            width: 56px;
+            height: 56px;
+            border-radius: 50%;
+            background-color: var(--primary);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            cursor: pointer;
+            transition: transform 0.2s, background-color 0.2s;
+            z-index: 100;
+        }
+        
+        .fab:hover {
+            transform: translateY(-5px);
+            background-color: #3a56d4;
+        }
+        
+        /* Responsive */
+        @media (max-width: 768px) {
+            .container {
+                padding: 15px;
+            }
+            
+            .card {
+                padding: 20px;
+            }
+            
+            .stage-header {
+                padding: 15px;
+            }
+            
+            .stage-content {
+                padding: 15px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>AI Patient Template</h1>
+            <p>Create realistic patient scenarios with multi-stage interactions</p>
+        </header>
+        
+        <form id="patientForm">
+            <!-- Setup Card -->
+            <div class="card">
+                <div class="card-header">
+                    <h2 class="card-title">General Setup</h2>
+                    <button type="button" class="toggle-btn">▼</button>
+                </div>
+                
+                <div class="form-group">
+                    <label for="scenarioTitle">Scenario Title</label>
+                    <input type="text" id="scenarioTitle" placeholder="Enter a descriptive title for this scenario">
+                </div>
+                
+                <div class="form-group">
+                    <label for="scenarioFlow">Scenario Overview</label>
+                    <textarea id="scenarioFlow" placeholder="Describe the overall flow of this patient scenario"></textarea>
+                    <p class="hint">Set a baseline reference for the prompt that explains what the AI patient will experience</p>
+                </div>
+                
+                <h3 class="subsection-title">Patient Clarifiers</h3>
+                <p class="hint">Add rules for the AI to follow until told otherwise</p>
+                
+                <div id="clarifiersContainer" class="dynamic-items">
+                    <!-- Dynamic clarifier items will go here -->
+                </div>
+                
+                <button type="button" id="addClarifierBtn" class="btn btn-secondary btn-sm">
+                    <span class="btn-icon">+</span> Add Clarifier
+                </button>
+                
+                <h3 class="subsection-title">Trigger References</h3>
+                <p class="hint">Add specific references for the AI to recognize and transition to the next stage</p>
+                
+                <div id="triggersContainer" class="dynamic-items">
+                    <!-- Dynamic trigger items will go here -->
+                </div>
+                
+                <button type="button" id="addTriggerBtn" class="btn btn-secondary btn-sm">
+                    <span class="btn-icon">+</span> Add Trigger
+                </button>
+            </div>
+            
+            <!-- Patient Information Card -->
+            <div class="card">
+                <div class="card-header">
+                    <h2 class="card-title">Patient Information</h2>
+                    <button type="button" class="toggle-btn">▼</button>
+                </div>
+                
+                <div class="form-group">
+                    <label for="patientName">Name</label>
+                    <input type="text" id="patientName" placeholder="Patient's full name">
+                </div>
+                
+                <div class="form-group">
+                    <label for="patientAge">Age</label>
+                    <input type="text" id="patientAge" placeholder="Patient's age">
+                </div>
+                
+                <div class="form-group">
+                    <label for="patientHistory">Medical History</label>
+                    <textarea id="patientHistory" placeholder="Relevant past medical history"></textarea>
+                </div>
+                
+                <div class="form-group">
+                    <label for="visitReason">Reason for Visit</label>
+                    <textarea id="visitReason" placeholder="Known reason for being seen"></textarea>
+                </div>
+                
+                <h3 class="subsection-title">Patient Knowledge</h3>
+                <p class="hint">Add statements in 2nd person to provide context for the patient role</p>
+                
+                <div id="knowledgeContainer" class="dynamic-items">
+                    <!-- Dynamic knowledge items will go here -->
+                </div>
+                
+                <button type="button" id="addKnowledgeBtn" class="btn btn-secondary btn-sm">
+                    <span class="btn-icon">+</span> Add Knowledge Item
+                </button>
+            </div>
+            
+            <!-- Stages Section -->
+            <h2 class="section-title">Patient Interaction Stages</h2>
+            
+            <div id="stagesContainer">
+                <!-- Stage One -->
+                <div class="stage" id="stage1">
+                    <div class="stage-header" onclick="toggleStage(this.parentNode)">
+                        <div class="stage-number">1</div>
+                        <input type="text" class="stage-title" placeholder="Stage Name (e.g., Initial Assessment)" value="Initial Assessment" onclick="event.stopPropagation()">
+                        <div class="stage-controls">
+                            <button type="button" class="btn btn-sm btn-circle" onclick="event.stopPropagation()">↓</button>
+                            <button type="button" class="btn btn-sm btn-circle" onclick="event.stopPropagation()">↑</button>
+                            <button type="button" class="btn btn-sm btn-circle" onclick="event.stopPropagation()">✕</button>
+                        </div>
+                    </div>
+                    
+                    <div class="stage-content">
+                        <h3 class="subsection-title">Stage-Specific Information</h3>
+                        
+                        <div class="form-group">
+                            <label for="stage1Condition">Current Condition</label>
+                            <textarea id="stage1Condition" placeholder="Describe the patient's condition in this stage"></textarea>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="stage1Concern">Primary Concern</label>
+                            <textarea id="stage1Concern" placeholder="What is the patient's main concern in this stage?"></textarea>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="stage1Symptoms">Current Symptoms</label>
+                            <textarea id="stage1Symptoms" placeholder="List current symptoms the patient is experiencing"></textarea>
+                        </div>
+                        
+                        <h3 class="subsection-title">Behavioral Reference</h3>
+                        
+                        <div class="form-group">
+                            <label for="stage1Emotional">Emotional Baseline</label>
+                            <textarea id="stage1Emotional" placeholder="Describe the patient's emotional state in this stage"></textarea>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="stage1Challenges">Behavioral Challenges</label>
+                            <textarea id="stage1Challenges" placeholder="Any behavioral challenges the provider might face"></textarea>
+                        </div>
+                        
+                        <h3 class="subsection-title">
+                            <span class="badge badge-warning">Behavioral Cues</span>
+                        </h3>
+                        
+                        <div id="stage1CuesContainer" class="dynamic-items">
+                            <!-- Dynamic stage cues will go here -->
+                        </div>
+                        
+                        <button type="button" class="add-stage-cue-btn btn btn-secondary btn-sm" data-stage="1">
+                            <span class="btn-icon">+</span> Add Behavioral Cue
+                        </button>
+                        
+                        <h3 class="subsection-title">
+                            <span class="badge badge-warning">Dialogue Examples</span>
+                        </h3>
+                        
+                        <div id="stage1DialogueContainer" class="dynamic-items">
+                            <!-- Dynamic stage dialogue examples will go here -->
+                        </div>
+                        
+                        <button type="button" class="add-stage-dialogue-btn btn btn-secondary btn-sm" data-stage="1">
+                            <span class="btn-icon">+</span> Add Dialogue Example
+                        </button>
+                        
+                        <h3 class="subsection-title">
+                            <span class="badge badge-danger">Breaking Point</span>
+                        </h3>
+                        
+                        <div class="form-group">
+                            <textarea id="stage1Breaking" placeholder="Describe the trigger dialogue that signals transition to next stage"></textarea>
+                        </div>
+                        
+                        <h3 class="subsection-title">Speech Patterns</h3>
+                        
+                        <div class="form-group">
+                            <textarea id="stage1Speech" placeholder="If specific speech patterns are needed (slurring, accent, etc.)"></textarea>
+                        </div>
+                        
+                        <h3 class="subsection-title">Stage Transition</h3>
+                        
+                        <div class="form-group">
+                            <label for="stage1Trigger">Key Trigger for Stage Transition</label>
+                            <textarea id="stage1Trigger" placeholder="What triggers the transition to the next stage?"></textarea>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Stage Two -->
+                <div class="stage" id="stage2">
+                    <div class="stage-header" onclick="toggleStage(this.parentNode)">
+                        <div class="stage-number">2</div>
+                        <input type="text" class="stage-title" placeholder="Stage Name (e.g., Escalation)" value="Escalation" onclick="event.stopPropagation()">
+                        <div class="stage-controls">
+                            <button type="button" class="btn btn-sm btn-circle" onclick="event.stopPropagation()">↓</button>
+                            <button type="button" class="btn btn-sm btn-circle" onclick="event.stopPropagation()">↑</button>
+                            <button type="button" class="btn btn-sm btn-circle" onclick="event.stopPropagation()">✕</button>
+                        </div>
+                    </div>
+                    
+                    <div class="stage-content">
+                        <h3 class="subsection-title">Stage-Specific Information</h3>
+                        
+                        <div class="form-group">
+                            <label for="stage2Condition">Current Condition</label>
+                            <textarea id="stage2Condition" placeholder="Describe the patient's condition in this stage"></textarea>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="stage2Progress">Progression From Previous Stage</label>
+                            <textarea id="stage2Progress" placeholder="How has the patient's condition changed since the previous stage?"></textarea>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="stage2Concern">Primary Concern</label>
+                            <textarea id="stage2Concern" placeholder="What is the patient's main concern in this stage?"></textarea>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="stage2Symptoms">Current Symptoms</label>
+                            <textarea id="stage2Symptoms" placeholder="List current symptoms the patient is experiencing"></textarea>
+                        </div>
+                        
+                        <h3 class="subsection-title">Behavioral Reference</h3>
+                        
+                        <div class="form-group">
+                            <label for="stage2Emotional">Emotional Baseline</label>
+                            <textarea id="stage2Emotional" placeholder="Describe the patient's emotional state in this stage"></textarea>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="stage2Challenges">Behavioral Challenges</label>
+                            <textarea id="stage2Challenges" placeholder="Any behavioral challenges the provider might face"></textarea>
+                        </div>
+                        
+                        <h3 class="subsection-title">
+                            <span class="badge badge-warning">Behavioral Cues</span>
+                        </h3>
+                        
+                        <div id="stage2CuesContainer" class="dynamic-items">
+                            <!-- Dynamic stage cues will go here -->
+                        </div>
+                        
+                        <button type="button" class="add-stage-cue-btn btn btn-secondary btn-sm" data-stage="2">
+                            <span class="btn-icon">+</span> Add Behavioral Cue
+                        </button>
+                        
+                        <h3 class="subsection-title">
+                            <span class="badge badge-warning">Dialogue Examples</span>
+                        </h3>
+                        
+                        <div id="stage2DialogueContainer" class="dynamic-items">
+                            <!-- Dynamic stage dialogue examples will go here -->
+                        </div>
+                        
+                        <button type="button" class="add-stage-dialogue-btn btn btn-secondary btn-sm" data-stage="2">
+                            <span class="btn-icon">+</span> Add Dialogue Example
+                        </button>
+                        
+                        <h3 class="subsection-title">
+                            <span class="badge badge-danger">Breaking Point</span>
+                        </h3>
+                        
+                        <div class="form-group">
+                            <textarea id="stage2Breaking" placeholder="Describe the trigger dialogue that signals transition to next stage"></textarea>
+                        </div>
+                        
+                        <h3 class="subsection-title">Speech Patterns</h3>
+                        
+                        <div class="form-group">
+                            <textarea id="stage2Speech" placeholder="If specific speech patterns are needed (slurring, accent, etc.)"></textarea>
+                        </div>
+                        
+                        <h3 class="subsection-title">Stage Transition</h3>
+                        
+                        <div class="form-group">
+                            <label for="stage2Trigger">Key Trigger for Stage Transition</label>
+                            <textarea id="stage2Trigger" placeholder="What triggers the transition to the next stage?"></textarea>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div style="text-align: center; margin: 20px 0;">
+                <button type="button" id="addStageBtn" class="btn btn-primary">
+                    <span class="btn-icon">+</span> Add Another Stage
+                </button>
+            </div>
+            
+            <!-- Additional Notes Card -->
+            <div class="card">
+                <div class="card-header">
+                    <h2 class="card-title">Additional Notes</h2>
+                    <button type="button" class="toggle-btn">▼</button>
+                </div>
+                
+                <div class="form-group">
+                    <textarea id="additionalNotes" placeholder="Add any additional information or special instructions for the AI patient" style="min-height: 120px;"></textarea>
+                </div>
+            </div>
+            
+            <!-- Footer with action buttons -->
+            <div class="footer">
+                <div class="footer-buttons">
+                    <button type="button" id="loadTemplateBtn" class="btn btn-secondary">
+                        <span class="btn-icon">📂</span> Load Template
+                    </button>
+                </div>
+                
+                <div class="footer-buttons">
+                    <button type="button" id="previewPromptBtn" class="btn btn-success">
+                        <span class="btn-icon">👁️</span> Preview
+                    </button>
+                    <button type="button" id="exportPromptBtn" class="btn btn-primary">
+                        <span class="btn-icon">💾</span> Export
+                    </button>
+                </div>
+            </div>
+        </form>
+    </div>
+    
+    <!-- Floating Action Button -->
+    <div class="fab" id="quickSaveBtn">💾</div>
+    
+    <!-- Export Modal -->
+    <div id="exportModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title">Export Options</h3>
+                <button class="modal-close">&times;</button>
+            </div>
+            <div class="modal-body">
+                <p>Choose your preferred export format:</p>
+                <div style="display: flex; flex-direction: column; gap: 15px; margin-top: 20px;">
+                    <button id="exportText" class="btn btn-secondary">
+                        <span class="btn-icon">📄</span> Export as Text (.txt)
+                    </button>
+                    <button id="exportMarkdown" class="btn btn-secondary">
+                        <span class="btn-icon">📝</span> Export as Markdown (.md)
+                    </button>
+                    <button id="exportJson" class="btn btn-secondary">
+                        <span class="btn-icon">{ }</span> Export as JSON (.json)
+                    </button>
+                    <button id="saveLocalStorage" class="btn btn-primary">
+                        <span class="btn-icon">💾</span> Save to Browser Storage
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Template Load Modal -->
+    <div id="loadModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title">Saved Templates</h3>
+                <button class="modal-close">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div id="savedTemplatesList">
+                    <p id="noSavedTemplates" style="text-align: center; color: var(--gray);">No saved templates found</p>
+                    <!-- Template items will be added here -->
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Preview Modal -->
+    <div id="previewModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title">Preview Generated Prompt</h3>
+                <button class="modal-close">&times;</button>
+            </div>
+            <div class="modal-body">
+                <pre id="promptPreview" style="white-space: pre-wrap; background-color: #f8f9fa; padding: 15px; border-radius: 8px; max
