@@ -508,7 +508,16 @@ select#patientGender {
     margin-bottom: 8px;
 }
 
-
+.top-gradient-bar {
+    width: 100%;
+    height: 18px;
+    background: linear-gradient(270deg, #0082c8, #6cc04a, #ffffff, #0082c8);
+    background-size: 600% 600%;
+    animation: gradientMove 8s ease infinite;
+    border-top-left-radius: 12px;
+    border-top-right-radius: 12px;
+    margin-bottom: 18px;
+}
 
 @keyframes gradientMove {
     0% {background-position:0% 50%}
